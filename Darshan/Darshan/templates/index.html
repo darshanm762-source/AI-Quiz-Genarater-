@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - AI Quiz Generator{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Header -->
+    <div class="text-center py-4">
+        <span class="badge-gradient mb-3">
+            <i class="bi bi-stars text-warning fs-5"></i> Next-Gen AI Question Generator
+        </span>
+        <h1 class="display-4 hero-title-gradient mb-3">Generate Instant Multiple Choice Quizzes</h1>
+        <p class="lead max-w-2xl mx-auto">
+            Enter any subject or topic, select difficulty, and let AI build custom multiple choice questions with timers, score analytics, and certificates.
+        </p>
+    </div>
+
+    <!-- Generator Form Card -->
+    <div class="row justify-content-center mt-2">
+        <div class="col-lg-8">
+            <div class="glass-card p-4 p-md-5">
+                <form id="generate-quiz-form" action="{{ url_for('main.api_generate_quiz') }}" method="POST">
+                    
+                    <!-- Alert Box for client-side validation errors -->
+                    <div id="form-alert-box" class="d-none"></div>
+
+                    <!-- Topic Input Field -->
+                    <div class="mb-4">
+                        <label for="topic-input" class="form-label-custom mb-2">
+                            <i class="bi bi-journal-bookmark-fill text-primary me-2 fs-5"></i>Quiz Topic
+                        </label>
+                        <input type="text" 
+                               class="form-control form-control-custom form-control-lg" 
+                               id="topic-input" 
+                               name="topic" 
+                               placeholder="e.g. Python Programming, World War II, Machine Learning, Organic Chemistry..." 
+                               required 
+                               autocomplete="off">
+                        <div class="form-text text-muted mt-2">Type any topic or concept you want to test your knowledge on.</div>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <!-- Number of Questions Selector -->
+                        <div class="col-md-6">
+                            <label for="num-questions-select" class="form-label-custom mb-2">
+                                <i class="bi bi-list-ol text-info me-2 fs-5"></i>Number of Questions
+                            </label>
+                            <select class="form-select form-select-custom" id="num-questions-select" name="num_questions">
+                                <option value="5">5 Questions (Quick)</option>
+                                <option value="10">10 Questions (Standard)</option>
+                                <option value="20" selected>20 Questions (Default)</option>
+                                <option value="30">30 Questions (In-Depth)</option>
+                                <option value="50">50 Questions (Mastery Test)</option>
+                            </select>
+                        </div>
+
+                        <!-- Difficulty Dropdown -->
+                        <div class="col-md-6">
+                            <label for="difficulty-select" class="form-label-custom mb-2">
+                                <i class="bi bi-bar-chart-fill text-warning me-2 fs-5"></i>Difficulty Level
+                            </label>
+                            <select class="form-select form-select-custom" id="difficulty-select" name="difficulty">
+                                <option value="Easy">Easy</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="Hard">Hard</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Generate Quiz Button -->
+                    <div class="d-grid mt-4">
+                        <button type="submit" id="btn-generate" class="btn btn-gradient-primary btn-lg py-3.5 fs-5">
+                            <i class="bi bi-magic me-2"></i>Generate Quiz
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Platform Stats & Recent Quizzes Section -->
+    <div class="mt-5 pt-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h3 class="text-white mb-0 fw-bold"><i class="bi bi-clock-history text-secondary me-2"></i>Recent Generated Quizzes</h3>
+            <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 fs-6 fw-bold">Total Quizzes: {{ total_quizzes }}</span>
+        </div>
+
+        <div class="row g-4">
+            {% if recent_quizzes %}
+                {% for q in recent_quizzes %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="glass-card glass-card-hover p-4 h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-{{ 'success' if q.difficulty == 'Easy' else ('warning' if q.difficulty == 'Medium' else 'danger') }} rounded-pill px-3 py-1 fw-bold">
+                                    {{ q.difficulty }}
+                                </span>
+                                <small class="text-muted fw-semibold"><i class="bi bi-question-circle me-1"></i>{{ q.num_questions }} Qs</small>
+                            </div>
+                            <h5 class="text-white font-weight-700 mb-2 text-truncate" title="{{ q.topic }}">{{ q.topic }}</h5>
+                            <p class="text-muted small mb-3">Created {{ q.created_at.strftime('%b %d, %Y') }}</p>
+                        </div>
+                        <a href="{{ url_for('main.quiz_page', quiz_id=q.id) }}" class="btn btn-outline-light btn-sm w-100 rounded-pill py-2 fw-bold">
+                            Take Quiz <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center py-4">
+                    <p class="text-muted fs-5">No quizzes generated yet. Be the first to enter a topic above!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

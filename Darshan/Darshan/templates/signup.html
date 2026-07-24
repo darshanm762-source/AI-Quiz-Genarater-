@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - AI Quiz Studio{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="glass-card p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <i class="bi bi-person-plus-fill text-primary display-4 mb-2"></i>
+                    <h2 class="text-white font-weight-800">Create Account</h2>
+                    <p class="text-muted">Join AI Quiz Studio to unlock certificates and leaderboards.</p>
+                </div>
+
+                <form action="{{ url_for('main.signup') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label text-white fw-semibold">Username</label>
+                        <input type="text" class="form-control form-control-custom" id="username" name="username" required placeholder="john_doe">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label text-white fw-semibold">Email Address</label>
+                        <input type="email" class="form-control form-control-custom" id="email" name="email" required placeholder="john@example.com">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label text-white fw-semibold">Password</label>
+                        <input type="password" class="form-control form-control-custom" id="password" name="password" required placeholder="Create strong password">
+                    </div>
+
+                    <button type="submit" class="btn btn-gradient-primary w-100 py-3 font-weight-700 fs-5 mb-3">
+                        Create Account
+                    </button>
+
+                    <div class="text-center">
+                        <span class="text-muted">Already have an account?</span>
+                        <a href="{{ url_for('main.login') }}" class="text-primary fw-bold ms-1">Sign In</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

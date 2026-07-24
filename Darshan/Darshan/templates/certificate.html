@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Certificate of Accomplishment - AI Quiz Studio{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+        <a href="{{ url_for('main.result_page', result_id=result.id) }}" class="btn btn-outline-light rounded-pill px-4">
+            <i class="bi bi-arrow-left me-1"></i> Back to Result
+        </a>
+        <button id="btn-print-pdf" class="btn btn-gradient-primary px-4 py-2">
+            <i class="bi bi-printer-fill me-1"></i> Print / Download PDF
+        </button>
+    </div>
+
+    <!-- Certificate Frame Container -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="certificate-frame text-center">
+                <!-- Watermark Logo -->
+                <div class="mb-3">
+                    <i class="bi bi-award-fill text-primary" style="font-size: 4rem;"></i>
+                </div>
+
+                <span class="text-uppercase tracking-widest text-secondary fw-bold fs-6">Official Certificate of Achievement</span>
+                <h1 class="font-weight-800 display-4 my-3 text-dark">CERTIFICATE OF EXCELLENCE</h1>
+                <p class="text-muted fs-5 mb-4">This certificate is proudly awarded to</p>
+
+                <h2 class="display-5 font-weight-800 text-primary text-decoration-underline mb-4">{{ candidate_name }}</h2>
+
+                <p class="fs-5 text-dark max-w-xl mx-auto mb-4">
+                    for successfully demonstrating proficiency and completing the comprehensive AI knowledge assessment on topic
+                </p>
+
+                <h3 class="font-weight-800 text-dark mb-3">"{{ result.quiz.topic }}"</h3>
+                <p class="text-muted mb-4 fs-6">Difficulty: <strong>{{ result.quiz.difficulty }}</strong></p>
+
+                <!-- Stats Badges -->
+                <div class="d-flex justify-content-center gap-4 my-4 py-3 bg-light rounded-3 border border-secondary-subtle">
+                    <div>
+                        <small class="text-muted d-block text-uppercase fw-bold">Score</small>
+                        <span class="fs-4 fw-bold text-dark">{{ result.score }} / {{ result.total_questions }}</span>
+                    </div>
+                    <div class="border-start ps-4">
+                        <small class="text-muted d-block text-uppercase fw-bold">Percentage</small>
+                        <span class="fs-4 fw-bold text-primary">{{ "%.1f"|format(result.percentage) }}%</span>
+                    </div>
+                    <div class="border-start ps-4">
+                        <small class="text-muted d-block text-uppercase fw-bold">Grade</small>
+                        <span class="fs-4 fw-bold text-success">{{ result.grade }}</span>
+                    </div>
+                </div>
+
+                <div class="row align-items-end mt-5 pt-3 border-top border-secondary-subtle text-start">
+                    <div class="col-6">
+                        <small class="text-muted d-block">Issued On:</small>
+                        <strong class="text-dark">{{ result.completed_at.strftime('%B %d, %Y') }}</strong>
+                    </div>
+                    <div class="col-6 text-end">
+                        <small class="text-muted d-block">Verification ID:</small>
+                        <code class="text-primary fw-bold fs-6">{{ result.verification_code }}</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+        body { background: #ffffff !important; color: #000000 !important; }
+        .navbar-custom, .footer-custom, .no-print { display: none !important; }
+        .certificate-frame { border: 8px double #000000 !important; box-shadow: none !important; }
+    }
+</style>
+{% endblock %}

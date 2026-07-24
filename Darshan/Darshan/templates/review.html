@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}Question Review - {{ result.quiz.topic }}{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom border-secondary gap-3">
+        <div>
+            <span class="badge bg-primary rounded-pill px-3 py-1 mb-2">Answer Review Mode</span>
+            <h2 class="text-white font-weight-800 mb-0">{{ result.quiz.topic }}</h2>
+            <p class="text-muted mb-0">Score: {{ result.score }} / {{ result.total_questions }} ({{ "%.1f"|format(result.percentage) }}%, Grade {{ result.grade }})</p>
+        </div>
+        <div>
+            <a href="{{ url_for('main.result_page', result_id=result.id) }}" class="btn btn-outline-light rounded-pill px-4">
+                <i class="bi bi-arrow-left me-1"></i> Back to Result
+            </a>
+        </div>
+    </div>
+
+    <!-- Questions Loop -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            {% for q in result.quiz.questions %}
+                {% set q_id_str = q.id|string %}
+                {% set user_ans = user_answers.get(q_id_str) %}
+                {% set is_correct = (user_ans == q.answer) %}
+                {% set is_unanswered = (not user_ans) %}
+
+                <div class="glass-card p-4 p-md-5 mb-4 border-start border-4 border-{{ 'success' if is_correct else ('warning' if is_unanswered else 'danger') }}">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="fw-bold text-white fs-5">Question {{ loop.index }} of {{ result.total_questions }}</span>
+                        {% if is_correct %}
+                            <span class="badge bg-success-subtle text-success border border-success px-3 py-1.5 rounded-pill fw-semibold fs-6">
+                                <i class="bi bi-check-circle-fill me-1"></i> Correct
+                            </span>
+                        {% elif is_unanswered %}
+                            <span class="badge bg-warning-subtle text-warning border border-warning px-3 py-1.5 rounded-pill fw-semibold fs-6">
+                                <i class="bi bi-dash-circle-fill me-1"></i> Unanswered
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger border border-danger px-3 py-1.5 rounded-pill fw-semibold fs-6">
+                                <i class="bi bi-x-circle-fill me-1"></i> Incorrect
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Question Text -->
+                    <h4 class="text-white font-weight-600 mb-4">{{ q.question }}</h4>
+
+                    <!-- Options Grid with Highlights -->
+                    <div class="row g-2 mb-4">
+                        {% for opt in q.get_options_list() %}
+                            {% set is_this_user_ans = (user_ans == opt) %}
+                            {% set is_this_correct_ans = (q.answer == opt) %}
+                            
+                            <div class="col-12">
+                                <div class="p-3 rounded-3 border d-flex align-items-center justify-content-between
+                                    {% if is_this_correct_ans %}
+                                        bg-success-subtle border-success text-success fw-bold
+                                    {% elif is_this_user_ans and not is_this_correct_ans %}
+                                        bg-danger-subtle border-danger text-danger fw-bold
+                                    {% else %}
+                                        bg-body-tertiary border-secondary-subtle text-white
+                                    {% endif %}
+                                ">
+                                    <span>
+                                        {% if is_this_correct_ans %}
+                                            <i class="bi bi-check-lg text-success me-2 fs-5"></i>
+                                        {% elif is_this_user_ans %}
+                                            <i class="bi bi-x-lg text-danger me-2 fs-5"></i>
+                                        {% else %}
+                                            <i class="bi bi-circle text-muted me-2"></i>
+                                        {% endif %}
+                                        {{ opt }}
+                                    </span>
+                                    
+                                    {% if is_this_correct_ans %}
+                                        <span class="badge bg-success text-white">Correct Answer</span>
+                                    {% elif is_this_user_ans %}
+                                        <span class="badge bg-danger text-white">Your Answer</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- AI Explanation Box -->
+                    <div class="p-3 rounded-3 bg-primary-subtle border border-primary text-white">
+                        <div class="fw-bold text-primary mb-1">
+                            <i class="bi bi-lightbulb-fill me-1 text-warning"></i> AI Explanation:
+                        </div>
+                        <p class="mb-0 text-white-50 small fs-6">
+                            {{ q.explanation or ("The correct answer is '" ~ q.answer ~ "'.") }}
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

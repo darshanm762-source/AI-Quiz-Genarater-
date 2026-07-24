@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - AI Quiz Studio{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div>
+            <span class="badge bg-danger-subtle text-danger border border-danger px-3 py-1.5 rounded-pill fw-semibold mb-1">
+                <i class="bi bi-shield-lock-fill me-1"></i> Admin Management Console
+            </span>
+            <h1 class="text-white display-6 font-weight-800 mb-0">System Control Dashboard</h1>
+        </div>
+        <div>
+            <a href="{{ url_for('main.admin_export_csv') }}" class="btn btn-success font-weight-600 rounded-pill px-4 py-2">
+                <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i> Export Results as CSV
+            </a>
+        </div>
+    </div>
+
+    <!-- Overview Stats Cards -->
+    <div class="row g-3 mb-5">
+        <div class="col-md-4">
+            <div class="glass-card p-4 text-center">
+                <i class="bi bi-journal-text text-primary display-5 mb-2"></i>
+                <h3 class="text-white font-weight-800 mb-0">{{ quizzes|length }}</h3>
+                <span class="text-muted">Total Quizzes Generated</span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card p-4 text-center">
+                <i class="bi bi-check-all text-success display-5 mb-2"></i>
+                <h3 class="text-white font-weight-800 mb-0">{{ results|length }}</h3>
+                <span class="text-muted">Total Submissions Completed</span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card p-4 text-center">
+                <i class="bi bi-people-fill text-warning display-5 mb-2"></i>
+                <h3 class="text-white font-weight-800 mb-0">{{ users_count }}</h3>
+                <span class="text-muted">Registered Users</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quizzes Table Section -->
+    <div class="glass-card p-4 mb-5">
+        <h4 class="text-white font-weight-700 mb-3"><i class="bi bi-list-stars text-primary me-2"></i>All Generated Quizzes</h4>
+        <div class="table-responsive">
+            <table class="table table-hover table-dark align-middle mb-0 bg-transparent">
+                <thead>
+                    <tr class="text-secondary">
+                        <th>ID</th>
+                        <th>Topic</th>
+                        <th>Difficulty</th>
+                        <th>Questions</th>
+                        <th>Created At</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if quizzes %}
+                        {% for q in quizzes %}
+                        <tr>
+                            <td>#{{ q.id }}</td>
+                            <td class="fw-bold text-white">{{ q.topic }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if q.difficulty == 'Easy' else ('warning' if q.difficulty == 'Medium' else 'danger') }}">
+                                    {{ q.difficulty }}
+                                </span>
+                            </td>
+                            <td>{{ q.num_questions }} Qs</td>
+                            <td class="small text-muted">{{ q.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ url_for('main.quiz_page', quiz_id=q.id) }}" class="btn btn-sm btn-outline-info">View</a>
+                                    <form action="{{ url_for('main.admin_delete_quiz', quiz_id=q.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this quiz and its results?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash-fill"></i> Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-3 text-muted">No quizzes available.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Results Table Section -->
+    <div class="glass-card p-4">
+        <h4 class="text-white font-weight-700 mb-3"><i class="bi bi-clipboard-data-fill text-success me-2"></i>All Submission Results</h4>
+        <div class="table-responsive">
+            <table class="table table-hover table-dark align-middle mb-0 bg-transparent">
+                <thead>
+                    <tr class="text-secondary">
+                        <th>Result ID</th>
+                        <th>Topic</th>
+                        <th>User</th>
+                        <th>Score</th>
+                        <th>Percentage</th>
+                        <th>Grade</th>
+                        <th>Verification Code</th>
+                        <th>Completed At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if results %}
+                        {% for r in results %}
+                        <tr>
+                            <td>#{{ r.id }}</td>
+                            <td class="text-white fw-medium">{{ r.quiz.topic if r.quiz else 'N/A' }}</td>
+                            <td>{{ r.user.username if r.user else 'Guest Scholar' }}</td>
+                            <td class="fw-bold">{{ r.score }} / {{ r.total_questions }}</td>
+                            <td class="text-primary font-weight-700">{{ "%.1f"|format(r.percentage) }}%</td>
+                            <td><span class="badge bg-primary">{{ r.grade }}</span></td>
+                            <td><code>{{ r.verification_code }}</code></td>
+                            <td class="small text-muted">{{ r.completed_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center py-3 text-muted">No results recorded yet.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
